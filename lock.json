@@ -1,3 +1,11 @@
 {
-  "packages": {}
+  "packages": {
+    "a": {
+      "name": "a",
+      "version": "1.0",
+      "description": "dasdasdas",
+      "author": "Xubic",
+      "isInstalled": false
+    }
+  }
 }
