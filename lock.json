@@ -6,6 +6,13 @@
       "description": "dasdasdas",
       "author": "Xubic",
       "isInstalled": false
+    },
+    "B": {
+      "name": "B",
+      "version": "1.0",
+      "description": "asdfjijkldsfkshdfkjshdfkjhsdkfjsdf",
+      "author": "Xubic",
+      "isInstalled": false
     }
   }
 }
