@@ -31,6 +31,14 @@
       "author": "AnotherDev",
       "isInstalled": false,
       "isPipeline": true
+    },
+    "DoTween": {
+      "name": "DoTween",
+      "version": "1.0",
+      "description": "A collection of the library \"DoTween\" for the RML modding language.",
+      "author": "Xubic",
+      "isInstalled": false,
+      "isPipeline": true
     }
   }
 }
