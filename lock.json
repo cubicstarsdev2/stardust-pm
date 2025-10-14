@@ -6,7 +6,7 @@
       "description": "A collection of unity methods for the RML modding language [Modding SDK/Pipeline]",
       "author": "Xubic",
       "isInstalled": false,
-      "isPipeline": false
+      "isPipeline": true
     },
     "ytApi": {
       "name": "ytApi",
@@ -25,4 +25,5 @@
       "isPipeline": true
     }
   }
+
 }
