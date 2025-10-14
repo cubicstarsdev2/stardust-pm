@@ -7,6 +7,14 @@
       "author": "Xubic",
       "isInstalled": false,
       "isPipeline": false
+    },
+    "ytApi": {
+      "name": "ytApi",
+      "version": "1.0",
+      "description": "Let's you interact with the youtube API using RML",
+      "author": "Xubic",
+      "isInstalled": false,
+      "isPipeline": false
     }
   }
 }
