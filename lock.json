@@ -15,6 +15,14 @@
       "author": "Xubic",
       "isInstalled": false,
       "isPipeline": false
+    },
+    "Gapy": {
+      "name": "Gapy",
+      "version": "1.0",
+      "description": "The official modding SDK for the game \"Gaby\".",
+      "author": "CubicSD",
+      "isInstalled": false,
+      "isPipeline": true
     }
   }
 }
