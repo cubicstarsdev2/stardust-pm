@@ -13,6 +13,13 @@
       "description": "asdfjijkldsfkshdfkjshdfkjhsdkfjsdf",
       "author": "Xubic",
       "isInstalled": false
+    },
+    "Dotween": {
+      "name": "Dotween",
+      "version": "1.0",
+      "description": "asdasfasdasdasd",
+      "author": "Xubic",
+      "isInstalled": false
     }
   }
 }
