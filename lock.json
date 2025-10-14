@@ -1,32 +1,3 @@
 {
-  "packages": {
-    "a": {
-      "name": "a",
-      "version": "2.0",
-      "description": "dasdasdas",
-      "author": "Xubic",
-      "isInstalled": false
-    },
-    "B": {
-      "name": "B",
-      "version": "1.0",
-      "description": "asdfjijkldsfkshdfkjshdfkjhsdkfjsdf",
-      "author": "Xubic",
-      "isInstalled": false
-    },
-    "Dotween": {
-      "name": "Dotween",
-      "version": "1.0",
-      "description": "asdasfasdasdasd",
-      "author": "Xubic",
-      "isInstalled": false
-    },
-    "gvfhdfg hfgh ": {
-      "name": "gvfhdfg hfgh ",
-      "version": "1.0",
-      "description": "adsdfhasdlkfhasldjfh",
-      "author": "Xubic",
-      "isInstalled": false
-    }
-  }
+  "packages": {}
 }
