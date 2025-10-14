@@ -1,3 +1,12 @@
 {
-  "packages": {}
+  "packages": {
+    "UniPipe": {
+      "name": "UniPipe",
+      "version": "1.0",
+      "description": "A collection of unity methods for the RML modding language [Modding SDK/Pipeline]",
+      "author": "Xubic",
+      "isInstalled": false,
+      "isPipeline": false
+    }
+  }
 }
