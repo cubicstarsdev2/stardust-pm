@@ -39,6 +39,14 @@
       "author": "Xubic",
       "isInstalled": false,
       "isPipeline": true
+    },
+    "Courier": {
+      "name": "Courier",
+      "version": "1.0",
+      "description": "A modding SDK for the game \"Catch the Courier\"",
+      "author": "Xubic",
+      "isInstalled": false,
+      "isPipeline": true
     }
   }
 }
