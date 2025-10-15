@@ -1,0 +1,4255 @@
+using System;
+using System.Collections;
+using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+/// <summary>
+/// Comprehensive Unity Pipeline that exposes virtually all Unity functionality to RIL
+/// </summary>
+public class UnityPipeline : Pipeline
+{
+    public override string Name => "UniPipe";
+    public override string Description => "Comprehensive Unity engine functionality including GameObjects, Components, Physics, Rendering, Audio, UI, Animation, and more";
+
+    public UnityPipeline() : base() { }
+
+    protected override void Initialize()
+    {
+        InitializeGameObjectMethods();
+        InitializeTransformMethods();
+        InitializeComponentMethods();
+        InitializePhysicsMethods();
+        InitializeRigidbodyMethods();
+        InitializeColliderMethods();
+        InitializeRendererMethods();
+        InitializeMaterialMethods();
+        InitializeTextureMethods();
+        InitializeLightMethods();
+        InitializeCameraMethods();
+        InitializeAudioMethods();
+        InitializeAnimationMethods();
+        InitializeParticleMethods();
+        InitializeUIMethods();
+        InitializeCanvasMethods();
+        InitializeInputMethods();
+        InitializeTimeMethods();
+        InitializeSceneMethods();
+        InitializeResourceMethods();
+        InitializeMathMethods();
+        InitializeVector2Methods();
+        InitializeVector3Methods();
+        InitializeVector4Methods();
+        InitializeQuaternionMethods();
+        InitializeColorMethods();
+        InitializeRaycastMethods();
+        InitializeLayerMethods();
+        InitializeTagMethods();
+        InitializeCoroutineMethods();
+        InitializeApplicationMethods();
+        InitializeScreenMethods();
+        InitializeDebugMethods();
+        InitializeNavigationMethods();
+        InitializeTerrainMethods();
+        InitializeSpriteRendererMethods();
+        InitializeAnimatorMethods();
+        InitializeLineRendererMethods();
+        InitializeTrailRendererMethods();
+        InitializeGizmoMethods();
+        InitializePlayerPrefsMethods();
+        InitializeRandomMethods();
+        InitializeBoundsMethods();
+        InitializePlaneMethods();
+        InitializeVideoMethods();
+        InitializeNetworkingMethods();
+    }
+
+    #region GameObject Methods
+    private void InitializeGameObjectMethods()
+    {
+        AddMethod("CreateGameObject", (interp, args) =>
+        {
+            string name = args.Length > 0 ? args[0].ToString() : "GameObject";
+            return new GameObject(name);
+        });
+
+        AddMethod("CreatePrimitive", (interp, args) =>
+        {
+            if (args.Length > 0 && System.Enum.TryParse<PrimitiveType>(args[0].ToString(), true, out var type))
+                return GameObject.CreatePrimitive(type);
+            return null;
+        });
+
+        AddMethod("FindGameObject", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return GameObject.Find(args[0].ToString());
+            return null;
+        });
+
+        AddMethod("FindGameObjectWithTag", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return GameObject.FindGameObjectWithTag(args[0].ToString());
+            return null;
+        });
+
+        AddMethod("FindGameObjectsWithTag", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return GameObject.FindGameObjectsWithTag(args[0].ToString());
+            return null;
+        });
+
+        AddMethod("DestroyGameObject", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Object obj)
+            {
+                float delay = args.Length > 1 ? Convert.ToSingle(args[1]) : 0f;
+                UnityEngine.Object.Destroy(obj, delay);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DestroyImmediate", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Object obj)
+            {
+                UnityEngine.Object.DestroyImmediate(obj);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DontDestroyOnLoad", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Object obj)
+            {
+                UnityEngine.Object.DontDestroyOnLoad(obj);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("Instantiate", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Object obj)
+            {
+                Vector3 position = args.Length > 1 && args[1] is Vector3 pos ? pos : Vector3.zero;
+                Quaternion rotation = args.Length > 2 && args[2] is Quaternion rot ? rot : Quaternion.identity;
+                Transform parent = args.Length > 3 && args[3] is Transform p ? p : null;
+                
+                var instance = UnityEngine.Object.Instantiate(obj, position, rotation, parent);
+                return instance;
+            }
+            return null;
+        });
+
+        AddMethod("SetActive", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                go.SetActive(Convert.ToBoolean(args[1]));
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetActive", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is GameObject go)
+                return go.activeSelf;
+            return false;
+        });
+
+        AddMethod("GetActiveInHierarchy", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is GameObject go)
+                return go.activeInHierarchy;
+            return false;
+        });
+
+        AddMethod("GetName", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Object obj)
+                return obj.name;
+            return null;
+        });
+
+        AddMethod("SetName", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is UnityEngine.Object obj)
+            {
+                obj.name = args[1].ToString();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetTag", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is GameObject go)
+                return go.tag;
+            return null;
+        });
+
+        AddMethod("SetTag", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                go.tag = args[1].ToString();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("CompareTag", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+                return go.CompareTag(args[1].ToString());
+            return false;
+        });
+
+        AddMethod("GetLayer", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is GameObject go)
+                return go.layer;
+            return 0;
+        });
+
+        AddMethod("SetLayer", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                go.layer = Convert.ToInt32(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetLayerRecursive", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                int layer = Convert.ToInt32(args[1]);
+                SetLayerRecursively(go, layer);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+            SetLayerRecursively(child.gameObject, layer);
+    }
+    #endregion
+
+    #region Transform Methods
+    private void InitializeTransformMethods()
+    {
+        AddMethod("GetTransform", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is GameObject go)
+                return go.transform;
+            return null;
+        });
+
+        AddMethod("GetPosition", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                if (args[0] is GameObject go) return go.transform.position;
+                if (args[0] is Transform t) return t.position;
+            }
+            return Vector3.zero;
+        });
+
+        AddMethod("SetPosition", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 4)
+            {
+                t.position = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                return true;
+            }
+            else if (t != null && args.Length >= 2 && args[1] is Vector3 v)
+            {
+                t.position = v;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetLocalPosition", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t != null ? t.localPosition : Vector3.zero;
+        });
+
+        AddMethod("SetLocalPosition", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 4)
+            {
+                t.localPosition = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                return true;
+            }
+            else if (t != null && args.Length >= 2 && args[1] is Vector3 v)
+            {
+                t.localPosition = v;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetRotation", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t != null ? t.rotation.eulerAngles : Vector3.zero;
+        });
+
+        AddMethod("SetRotation", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 4)
+            {
+                t.rotation = Quaternion.Euler(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                return true;
+            }
+            else if (t != null && args.Length >= 2 && args[1] is Quaternion q)
+            {
+                t.rotation = q;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetLocalRotation", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t != null ? t.localRotation.eulerAngles : Vector3.zero;
+        });
+
+        AddMethod("SetLocalRotation", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 4)
+            {
+                t.localRotation = Quaternion.Euler(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetScale", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t != null ? t.localScale : Vector3.one;
+        });
+
+        AddMethod("SetScale", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 4)
+            {
+                t.localScale = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                return true;
+            }
+            else if (t != null && args.Length >= 2 && args[1] is Vector3 v)
+            {
+                t.localScale = v;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetForward", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t != null ? t.forward : Vector3.forward;
+        });
+
+        AddMethod("GetRight", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t != null ? t.right : Vector3.right;
+        });
+
+        AddMethod("GetUp", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t != null ? t.up : Vector3.up;
+        });
+
+        AddMethod("Translate", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 4)
+            {
+                Vector3 translation = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                Space space = args.Length > 4 && System.Enum.TryParse<Space>(args[4].ToString(), true, out var s) ? s : Space.Self;
+                t.Translate(translation, space);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("Rotate", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 4)
+            {
+                Vector3 eulers = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                Space space = args.Length > 4 && System.Enum.TryParse<Space>(args[4].ToString(), true, out var s) ? s : Space.Self;
+                t.Rotate(eulers, space);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("RotateAround", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 4 && args[1] is Vector3 point && args[2] is Vector3 axis)
+            {
+                float angle = Convert.ToSingle(args[3]);
+                t.RotateAround(point, axis, angle);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("LookAt", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 2)
+            {
+                if (args[1] is Transform target)
+                {
+                    Vector3 worldUp = args.Length > 2 && args[2] is Vector3 up ? up : Vector3.up;
+                    t.LookAt(target, worldUp);
+                    return true;
+                }
+                else if (args[1] is Vector3 targetPos)
+                {
+                    Vector3 worldUp = args.Length > 2 && args[2] is Vector3 up ? up : Vector3.up;
+                    t.LookAt(targetPos, worldUp);
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        AddMethod("GetParent", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t?.parent;
+        });
+
+        AddMethod("SetParent", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 2)
+            {
+                Transform parent = args[1] is Transform p ? p : null;
+                bool worldPositionStays = args.Length > 2 ? Convert.ToBoolean(args[2]) : true;
+                t.SetParent(parent, worldPositionStays);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetChildCount", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t?.childCount ?? 0;
+        });
+
+        AddMethod("GetChild", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 2)
+            {
+                int index = Convert.ToInt32(args[1]);
+                if (index >= 0 && index < t.childCount)
+                    return t.GetChild(index);
+            }
+            return null;
+        });
+
+        AddMethod("FindChild", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 2)
+                return t.Find(args[1].ToString());
+            return null;
+        });
+
+        AddMethod("GetSiblingIndex", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            return t?.GetSiblingIndex() ?? -1;
+        });
+
+        AddMethod("SetSiblingIndex", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null && args.Length >= 2)
+            {
+                t.SetSiblingIndex(Convert.ToInt32(args[1]));
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetAsFirstSibling", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null)
+            {
+                t.SetAsFirstSibling();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetAsLastSibling", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null)
+            {
+                t.SetAsLastSibling();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DetachChildren", (interp, args) =>
+        {
+            Transform t = GetTransform(args);
+            if (t != null)
+            {
+                t.DetachChildren();
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private Transform GetTransform(object[] args)
+    {
+        if (args.Length > 0)
+        {
+            if (args[0] is GameObject go) return go.transform;
+            if (args[0] is Transform t) return t;
+            if (args[0] is Component c) return c.transform;
+        }
+        return null;
+    }
+    #endregion
+
+    #region Component Methods
+    private void InitializeComponentMethods()
+    {
+        AddMethod("AddComponent", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                Type type = GetUnityType(args[1].ToString());
+                if (type != null)
+                    return go.AddComponent(type);
+            }
+            return null;
+        });
+
+        AddMethod("GetComponent", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                Type type = GetUnityType(args[1].ToString());
+                if (type != null)
+                    return go.GetComponent(type);
+            }
+            return null;
+        });
+
+        AddMethod("GetComponents", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                Type type = GetUnityType(args[1].ToString());
+                if (type != null)
+                    return go.GetComponents(type);
+            }
+            return null;
+        });
+
+        AddMethod("GetComponentInChildren", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                Type type = GetUnityType(args[1].ToString());
+                bool includeInactive = args.Length > 2 ? Convert.ToBoolean(args[2]) : false;
+                if (type != null)
+                    return go.GetComponentInChildren(type, includeInactive);
+            }
+            return null;
+        });
+
+        AddMethod("GetComponentsInChildren", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                Type type = GetUnityType(args[1].ToString());
+                bool includeInactive = args.Length > 2 ? Convert.ToBoolean(args[2]) : false;
+                if (type != null)
+                    return go.GetComponentsInChildren(type, includeInactive);
+            }
+            return null;
+        });
+
+        AddMethod("GetComponentInParent", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                Type type = GetUnityType(args[1].ToString());
+                if (type != null)
+                    return go.GetComponentInParent(type);
+            }
+            return null;
+        });
+
+        AddMethod("GetComponentsInParent", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is GameObject go)
+            {
+                Type type = GetUnityType(args[1].ToString());
+                bool includeInactive = args.Length > 2 ? Convert.ToBoolean(args[2]) : false;
+                if (type != null)
+                    return go.GetComponentsInParent(type, includeInactive);
+            }
+            return null;
+        });
+
+        AddMethod("RemoveComponent", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Component comp)
+            {
+                UnityEngine.Object.Destroy(comp);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private Type GetUnityType(string typeName)
+    {
+        // Try UnityEngine namespace first
+        Type type = Type.GetType($"UnityEngine.{typeName}, UnityEngine");
+        if (type != null) return type;
+
+        // Try UnityEngine.UI
+        type = Type.GetType($"UnityEngine.UI.{typeName}, UnityEngine.UI");
+        if (type != null) return type;
+
+        // Try just the type name
+        type = Type.GetType(typeName);
+        return type;
+    }
+    #endregion
+
+    #region Physics Methods
+    private void InitializePhysicsMethods()
+    {
+        AddMethod("Raycast", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 origin && args[1] is Vector3 direction)
+            {
+                float maxDistance = args.Length > 2 ? Convert.ToSingle(args[2]) : Mathf.Infinity;
+                int layerMask = args.Length > 3 ? Convert.ToInt32(args[3]) : Physics.DefaultRaycastLayers;
+                QueryTriggerInteraction queryTrigger = args.Length > 4 && System.Enum.TryParse<QueryTriggerInteraction>(args[4].ToString(), out var qti) ? qti : QueryTriggerInteraction.UseGlobal;
+                
+                RaycastHit hit;
+                if (Physics.Raycast(origin, direction, out hit, maxDistance, layerMask, queryTrigger))
+                    return hit;
+            }
+            return null;
+        });
+
+        AddMethod("RaycastAll", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 origin && args[1] is Vector3 direction)
+            {
+                float maxDistance = args.Length > 2 ? Convert.ToSingle(args[2]) : Mathf.Infinity;
+                int layerMask = args.Length > 3 ? Convert.ToInt32(args[3]) : Physics.DefaultRaycastLayers;
+                return Physics.RaycastAll(origin, direction, maxDistance, layerMask);
+            }
+            return null;
+        });
+
+        AddMethod("SphereCast", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Vector3 origin && args[1] is Vector3 direction)
+            {
+                float radius = Convert.ToSingle(args[2]);
+                float maxDistance = args.Length > 3 ? Convert.ToSingle(args[3]) : Mathf.Infinity;
+                
+                RaycastHit hit;
+                if (Physics.SphereCast(origin, radius, direction, out hit, maxDistance))
+                    return hit;
+            }
+            return null;
+        });
+
+        AddMethod("BoxCast", (interp, args) =>
+        {
+            if (args.Length >= 4 && args[0] is Vector3 center && args[1] is Vector3 halfExtents && args[2] is Vector3 direction && args[3] is Quaternion orientation)
+            {
+                float maxDistance = args.Length > 4 ? Convert.ToSingle(args[4]) : Mathf.Infinity;
+                
+                RaycastHit hit;
+                if (Physics.BoxCast(center, halfExtents, direction, out hit, orientation, maxDistance))
+                    return hit;
+            }
+            return null;
+        });
+
+        AddMethod("CapsuleCast", (interp, args) =>
+        {
+            if (args.Length >= 5 && args[0] is Vector3 point1 && args[1] is Vector3 point2 && args[3] is Vector3 direction)
+            {
+                float radius = Convert.ToSingle(args[2]);
+                float maxDistance = args.Length > 4 ? Convert.ToSingle(args[4]) : Mathf.Infinity;
+                
+                RaycastHit hit;
+                if (Physics.CapsuleCast(point1, point2, radius, direction, out hit, maxDistance))
+                    return hit;
+            }
+            return null;
+        });
+
+        AddMethod("OverlapSphere", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 position)
+            {
+                float radius = Convert.ToSingle(args[1]);
+                int layerMask = args.Length > 2 ? Convert.ToInt32(args[2]) : Physics.AllLayers;
+                return Physics.OverlapSphere(position, radius, layerMask);
+            }
+            return null;
+        });
+
+        AddMethod("OverlapBox", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 center && args[1] is Vector3 halfExtents)
+            {
+                Quaternion orientation = args.Length > 2 && args[2] is Quaternion q ? q : Quaternion.identity;
+                int layerMask = args.Length > 3 ? Convert.ToInt32(args[3]) : Physics.AllLayers;
+                return Physics.OverlapBox(center, halfExtents, orientation, layerMask);
+            }
+            return null;
+        });
+
+        AddMethod("OverlapCapsule", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Vector3 point0 && args[1] is Vector3 point1)
+            {
+                float radius = Convert.ToSingle(args[2]);
+                int layerMask = args.Length > 3 ? Convert.ToInt32(args[3]) : Physics.AllLayers;
+                return Physics.OverlapCapsule(point0, point1, radius, layerMask);
+            }
+            return null;
+        });
+
+        AddMethod("CheckSphere", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 position)
+            {
+                float radius = Convert.ToSingle(args[1]);
+                int layerMask = args.Length > 2 ? Convert.ToInt32(args[2]) : Physics.AllLayers;
+                return Physics.CheckSphere(position, radius, layerMask);
+            }
+            return false;
+        });
+
+        AddMethod("IgnoreCollision", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Collider col1 && args[1] is Collider col2)
+            {
+                bool ignore = args.Length > 2 ? Convert.ToBoolean(args[2]) : true;
+                Physics.IgnoreCollision(col1, col2, ignore);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("IgnoreLayerCollision", (interp, args) =>
+        {
+            if (args.Length >= 2)
+            {
+                int layer1 = Convert.ToInt32(args[0]);
+                int layer2 = Convert.ToInt32(args[1]);
+                bool ignore = args.Length > 2 ? Convert.ToBoolean(args[2]) : true;
+                Physics.IgnoreLayerCollision(layer1, layer2, ignore);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetGravity", (interp, args) => Physics.gravity);
+
+        AddMethod("SetGravity", (interp, args) =>
+        {
+            if (args.Length >= 3)
+            {
+                Physics.gravity = new Vector3(
+                    Convert.ToSingle(args[0]),
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2])
+                );
+                return true;
+            }
+            else if (args.Length >= 1 && args[0] is Vector3 gravity)
+            {
+                Physics.gravity = gravity;
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Rigidbody Methods
+    private void InitializeRigidbodyMethods()
+    {
+        AddMethod("GetVelocity", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+                return rb.linearVelocity;
+            return Vector3.zero;
+        });
+
+        AddMethod("SetVelocity", (interp, args) =>
+        {
+            if (args.Length >= 4 && args[0] is Rigidbody rb)
+            {
+                rb.linearVelocity = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                return true;
+            }
+            else if (args.Length >= 2 && args[0] is Rigidbody rb2 && args[1] is Vector3 vel)
+            {
+                rb2.linearVelocity = vel;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetAngularVelocity", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+                return rb.angularVelocity;
+            return Vector3.zero;
+        });
+
+        AddMethod("SetAngularVelocity", (interp, args) =>
+        {
+            if (args.Length >= 4 && args[0] is Rigidbody rb)
+            {
+                rb.angularVelocity = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                return true;
+            }
+            else if (args.Length >= 2 && args[0] is Rigidbody rb2 && args[1] is Vector3 vel)
+            {
+                rb2.angularVelocity = vel;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("AddForce", (interp, args) =>
+        {
+            if (args.Length >= 4 && args[0] is Rigidbody rb)
+            {
+                Vector3 force = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                ForceMode mode = args.Length > 4 && System.Enum.TryParse<ForceMode>(args[4].ToString(), out var m) ? m : ForceMode.Force;
+                rb.AddForce(force, mode);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("AddTorque", (interp, args) =>
+        {
+            if (args.Length >= 4 && args[0] is Rigidbody rb)
+            {
+                Vector3 torque = new Vector3(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3])
+                );
+                ForceMode mode = args.Length > 4 && System.Enum.TryParse<ForceMode>(args[4].ToString(), out var m) ? m : ForceMode.Force;
+                rb.AddTorque(torque, mode);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("AddExplosionForce", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Rigidbody rb && args[2] is Vector3 explosionPosition)
+            {
+                float explosionForce = Convert.ToSingle(args[1]);
+                float explosionRadius = args.Length > 3 ? Convert.ToSingle(args[3]) : 0f;
+                float upwardsModifier = args.Length > 4 ? Convert.ToSingle(args[4]) : 0f;
+                ForceMode mode = args.Length > 5 && System.Enum.TryParse<ForceMode>(args[5].ToString(), out var m) ? m : ForceMode.Force;
+                rb.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, upwardsModifier, mode);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetMass", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+                return rb.mass;
+            return 0f;
+        });
+
+        AddMethod("SetMass", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Rigidbody rb)
+            {
+                rb.mass = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetDrag", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+                return rb.linearDamping;
+            return 0f;
+        });
+
+        AddMethod("SetDrag", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Rigidbody rb)
+            {
+                rb.linearDamping = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetAngularDrag", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+                return rb.angularDamping;
+            return 0f;
+        });
+
+        AddMethod("SetAngularDrag", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Rigidbody rb)
+            {
+                rb.angularDamping = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetUseGravity", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+                return rb.useGravity;
+            return false;
+        });
+
+        AddMethod("SetUseGravity", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Rigidbody rb)
+            {
+                rb.useGravity = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetIsKinematic", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+                return rb.isKinematic;
+            return false;
+        });
+
+        AddMethod("SetIsKinematic", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Rigidbody rb)
+            {
+                rb.isKinematic = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("MovePosition", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Rigidbody rb && args[1] is Vector3 pos)
+            {
+                rb.MovePosition(pos);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("MoveRotation", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Rigidbody rb && args[1] is Quaternion rot)
+            {
+                rb.MoveRotation(rot);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("Sleep", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+            {
+                rb.Sleep();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("WakeUp", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Rigidbody rb)
+            {
+                rb.WakeUp();
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Collider Methods
+    private void InitializeColliderMethods()
+    {
+        AddMethod("GetColliderEnabled", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Collider col)
+                return col.enabled;
+            return false;
+        });
+
+        AddMethod("SetColliderEnabled", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Collider col)
+            {
+                col.enabled = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetIsTrigger", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Collider col)
+                return col.isTrigger;
+            return false;
+        });
+
+        AddMethod("SetIsTrigger", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Collider col)
+            {
+                col.isTrigger = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetColliderBounds", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Collider col)
+                return col.bounds;
+            return new Bounds();
+        });
+
+        AddMethod("ClosestPoint", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Collider col && args[1] is Vector3 position)
+                return col.ClosestPoint(position);
+            return Vector3.zero;
+        });
+
+        AddMethod("ClosestPointOnBounds", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Collider col && args[1] is Vector3 position)
+                return col.ClosestPointOnBounds(position);
+            return Vector3.zero;
+        });
+    }
+    #endregion
+
+    #region Renderer Methods
+    private void InitializeRendererMethods()
+    {
+        AddMethod("GetRendererEnabled", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Renderer rend)
+                return rend.enabled;
+            return false;
+        });
+
+        AddMethod("SetRendererEnabled", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Renderer rend)
+            {
+                rend.enabled = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetMaterial", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Renderer rend)
+                return rend.material;
+            return null;
+        });
+
+        AddMethod("SetMaterial", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Renderer rend && args[1] is Material mat)
+            {
+                rend.material = mat;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetMaterials", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Renderer rend)
+                return rend.materials;
+            return null;
+        });
+
+        AddMethod("SetMaterials", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Renderer rend && args[1] is Material[] mats)
+            {
+                rend.materials = mats;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetSharedMaterial", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Renderer rend)
+                return rend.sharedMaterial;
+            return null;
+        });
+
+        AddMethod("SetSharedMaterial", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Renderer rend && args[1] is Material mat)
+            {
+                rend.sharedMaterial = mat;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetRendererBounds", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Renderer rend)
+                return rend.bounds;
+            return new Bounds();
+        });
+
+        AddMethod("GetShadowCastingMode", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Renderer rend)
+                return rend.shadowCastingMode.ToString();
+            return null;
+        });
+
+        AddMethod("SetShadowCastingMode", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Renderer rend && System.Enum.TryParse<UnityEngine.Rendering.ShadowCastingMode>(args[1].ToString(), out var mode))
+            {
+                rend.shadowCastingMode = mode;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetReceiveShadows", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Renderer rend)
+                return rend.receiveShadows;
+            return false;
+        });
+
+        AddMethod("SetReceiveShadows", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Renderer rend)
+            {
+                rend.receiveShadows = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Material Methods
+    private void InitializeMaterialMethods()
+    {
+        AddMethod("CreateMaterial", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Shader shader)
+                return new Material(shader);
+            return null;
+        });
+
+        AddMethod("GetMaterialColor", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Material mat)
+            {
+                string propertyName = args.Length > 1 ? args[1].ToString() : "_Color";
+                return mat.GetColor(propertyName);
+            }
+            return Color.white;
+        });
+
+        AddMethod("SetMaterialColor", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Material mat && args[1] is Color color)
+            {
+                string propertyName = args.Length > 2 ? args[2].ToString() : "_Color";
+                mat.SetColor(propertyName, color);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetMaterialFloat", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Material mat)
+            {
+                string propertyName = args[1].ToString();
+                return mat.GetFloat(propertyName);
+            }
+            return 0f;
+        });
+
+        AddMethod("SetMaterialFloat", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Material mat)
+            {
+                string propertyName = args[1].ToString();
+                float value = Convert.ToSingle(args[2]);
+                mat.SetFloat(propertyName, value);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetMaterialTexture", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Material mat)
+            {
+                string propertyName = args[1].ToString();
+                return mat.GetTexture(propertyName);
+            }
+            return null;
+        });
+
+        AddMethod("SetMaterialTexture", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Material mat && args[2] is Texture tex)
+            {
+                string propertyName = args[1].ToString();
+                mat.SetTexture(propertyName, tex);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetMaterialVector", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Material mat)
+            {
+                string propertyName = args[1].ToString();
+                return mat.GetVector(propertyName);
+            }
+            return Vector4.zero;
+        });
+
+        AddMethod("SetMaterialVector", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Material mat && args[2] is Vector4 vec)
+            {
+                string propertyName = args[1].ToString();
+                mat.SetVector(propertyName, vec);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetMaterialKeyword", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Material mat)
+            {
+                string keyword = args[1].ToString();
+                bool enable = Convert.ToBoolean(args[2]);
+                if (enable)
+                    mat.EnableKeyword(keyword);
+                else
+                    mat.DisableKeyword(keyword);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("FindShader", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Shader.Find(args[0].ToString());
+            return null;
+        });
+    }
+    #endregion
+
+    #region Texture Methods
+    private void InitializeTextureMethods()
+    {
+        AddMethod("CreateTexture2D", (interp, args) =>
+        {
+            if (args.Length >= 2)
+            {
+                int width = Convert.ToInt32(args[0]);
+                int height = Convert.ToInt32(args[1]);
+                TextureFormat format = args.Length > 2 && System.Enum.TryParse<TextureFormat>(args[2].ToString(), out var f) ? f : TextureFormat.RGBA32;
+                bool mipChain = args.Length > 3 ? Convert.ToBoolean(args[3]) : true;
+                return new Texture2D(width, height, format, mipChain);
+            }
+            return null;
+        });
+
+        AddMethod("GetPixel", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Texture2D tex)
+            {
+                int x = Convert.ToInt32(args[1]);
+                int y = Convert.ToInt32(args[2]);
+                return tex.GetPixel(x, y);
+            }
+            return Color.black;
+        });
+
+        AddMethod("SetPixel", (interp, args) =>
+        {
+            if (args.Length >= 4 && args[0] is Texture2D tex && args[3] is Color color)
+            {
+                int x = Convert.ToInt32(args[1]);
+                int y = Convert.ToInt32(args[2]);
+                tex.SetPixel(x, y, color);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("ApplyTexture", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Texture2D tex)
+            {
+                bool updateMipmaps = args.Length > 1 ? Convert.ToBoolean(args[1]) : true;
+                bool makeNoLongerReadable = args.Length > 2 ? Convert.ToBoolean(args[2]) : false;
+                tex.Apply(updateMipmaps, makeNoLongerReadable);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetTextureWidth", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Texture tex)
+                return tex.width;
+            return 0;
+        });
+
+        AddMethod("GetTextureHeight", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Texture tex)
+                return tex.height;
+            return 0;
+        });
+
+        AddMethod("SetTextureFilterMode", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Texture tex && System.Enum.TryParse<FilterMode>(args[1].ToString(), out var mode))
+            {
+                tex.filterMode = mode;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetTextureWrapMode", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Texture tex && System.Enum.TryParse<TextureWrapMode>(args[1].ToString(), out var mode))
+            {
+                tex.wrapMode = mode;
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Light Methods
+    private void InitializeLightMethods()
+    {
+        AddMethod("GetLightType", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Light light)
+                return light.type.ToString();
+            return null;
+        });
+
+        AddMethod("SetLightType", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Light light && System.Enum.TryParse<LightType>(args[1].ToString(), out var type))
+            {
+                light.type = type;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetLightColor", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Light light)
+                return light.color;
+            return Color.white;
+        });
+
+        AddMethod("SetLightColor", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Light light && args[1] is Color color)
+            {
+                light.color = color;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetLightIntensity", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Light light)
+                return light.intensity;
+            return 0f;
+        });
+
+        AddMethod("SetLightIntensity", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Light light)
+            {
+                light.intensity = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetLightRange", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Light light)
+                return light.range;
+            return 0f;
+        });
+
+        AddMethod("SetLightRange", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Light light)
+            {
+                light.range = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetLightShadows", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Light light)
+                return light.shadows.ToString();
+            return null;
+        });
+
+        AddMethod("SetLightShadows", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Light light && System.Enum.TryParse<LightShadows>(args[1].ToString(), out var shadows))
+            {
+                light.shadows = shadows;
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Camera Methods
+    private void InitializeCameraMethods()
+    {
+        AddMethod("GetMainCamera", (interp, args) => Camera.main);
+
+        AddMethod("GetAllCameras", (interp, args) => Camera.allCameras);
+
+        AddMethod("ScreenToWorldPoint", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam && args[1] is Vector3 screenPos)
+                return cam.ScreenToWorldPoint(screenPos);
+            return Vector3.zero;
+        });
+
+        AddMethod("WorldToScreenPoint", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam && args[1] is Vector3 worldPos)
+                return cam.WorldToScreenPoint(worldPos);
+            return Vector3.zero;
+        });
+
+        AddMethod("ScreenToViewportPoint", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam && args[1] is Vector3 screenPos)
+                return cam.ScreenToViewportPoint(screenPos);
+            return Vector3.zero;
+        });
+
+        AddMethod("ViewportToScreenPoint", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam && args[1] is Vector3 viewportPos)
+                return cam.ViewportToScreenPoint(viewportPos);
+            return Vector3.zero;
+        });
+
+        AddMethod("ViewportToWorldPoint", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam && args[1] is Vector3 viewportPos)
+                return cam.ViewportToWorldPoint(viewportPos);
+            return Vector3.zero;
+        });
+
+        AddMethod("WorldToViewportPoint", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam && args[1] is Vector3 worldPos)
+                return cam.WorldToViewportPoint(worldPos);
+            return Vector3.zero;
+        });
+
+        AddMethod("GetFieldOfView", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Camera cam)
+                return cam.fieldOfView;
+            return 60f;
+        });
+
+        AddMethod("SetFieldOfView", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam)
+            {
+                cam.fieldOfView = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetNearClipPlane", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Camera cam)
+                return cam.nearClipPlane;
+            return 0.3f;
+        });
+
+        AddMethod("SetNearClipPlane", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam)
+            {
+                cam.nearClipPlane = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetFarClipPlane", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Camera cam)
+                return cam.farClipPlane;
+            return 1000f;
+        });
+
+        AddMethod("SetFarClipPlane", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam)
+            {
+                cam.farClipPlane = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetCameraBackgroundColor", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Camera cam)
+                return cam.backgroundColor;
+            return Color.black;
+        });
+
+        AddMethod("SetCameraBackgroundColor", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam && args[1] is Color color)
+            {
+                cam.backgroundColor = color;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetCameraClearFlags", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Camera cam)
+                return cam.clearFlags.ToString();
+            return null;
+        });
+
+        AddMethod("SetCameraClearFlags", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam && System.Enum.TryParse<CameraClearFlags>(args[1].ToString(), out var flags))
+            {
+                cam.clearFlags = flags;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetCameraDepth", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Camera cam)
+                return cam.depth;
+            return 0f;
+        });
+
+        AddMethod("SetCameraDepth", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Camera cam)
+            {
+                cam.depth = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetCameraRect", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Camera cam)
+                return cam.rect;
+            return new Rect(0, 0, 1, 1);
+        });
+
+        AddMethod("SetCameraRect", (interp, args) =>
+        {
+            if (args.Length >= 5 && args[0] is Camera cam)
+            {
+                cam.rect = new Rect(
+                    Convert.ToSingle(args[1]),
+                    Convert.ToSingle(args[2]),
+                    Convert.ToSingle(args[3]),
+                    Convert.ToSingle(args[4])
+                );
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Audio Methods
+    private void InitializeAudioMethods()
+    {
+        AddMethod("PlayAudioClip", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is AudioSource source && args[1] is AudioClip clip)
+            {
+                source.clip = clip;
+                source.Play();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("PlayOneShot", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is AudioSource source && args[1] is AudioClip clip)
+            {
+                float volumeScale = args.Length > 2 ? Convert.ToSingle(args[2]) : 1f;
+                source.PlayOneShot(clip, volumeScale);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("PlayAudio", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+            {
+                source.Play();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("PauseAudio", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+            {
+                source.Pause();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("StopAudio", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+            {
+                source.Stop();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("UnPauseAudio", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+            {
+                source.UnPause();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetAudioVolume", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+                return source.volume;
+            return 1f;
+        });
+
+        AddMethod("SetAudioVolume", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is AudioSource source)
+            {
+                source.volume = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetAudioPitch", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+                return source.pitch;
+            return 1f;
+        });
+
+        AddMethod("SetAudioPitch", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is AudioSource source)
+            {
+                source.pitch = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetAudioLoop", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+                return source.loop;
+            return false;
+        });
+
+        AddMethod("SetAudioLoop", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is AudioSource source)
+            {
+                source.loop = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("IsAudioPlaying", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+                return source.isPlaying;
+            return false;
+        });
+
+        AddMethod("GetAudioTime", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is AudioSource source)
+                return source.time;
+            return 0f;
+        });
+
+        AddMethod("SetAudioTime", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is AudioSource source)
+            {
+                source.time = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Animation Methods
+    private void InitializeAnimationMethods()
+    {
+        AddMethod("PlayAnimation", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animation anim)
+            {
+                string animName = args[1].ToString();
+                PlayMode mode = args.Length > 2 && System.Enum.TryParse<PlayMode>(args[2].ToString(), out var m) ? m : PlayMode.StopSameLayer;
+                anim.Play(animName, mode);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("StopAnimation", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Animation anim)
+            {
+                if (args.Length > 1)
+                    anim.Stop(args[1].ToString());
+                else
+                    anim.Stop();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("IsAnimationPlaying", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Animation anim)
+            {
+                if (args.Length > 1)
+                    return anim.IsPlaying(args[1].ToString());
+                return anim.isPlaying;
+            }
+            return false;
+        });
+
+        AddMethod("CrossFadeAnimation", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animation anim)
+            {
+                string animName = args[1].ToString();
+                float fadeLength = args.Length > 2 ? Convert.ToSingle(args[2]) : 0.3f;
+                anim.CrossFade(animName, fadeLength);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("BlendAnimation", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animation anim)
+            {
+                string animName = args[1].ToString();
+                float targetWeight = args.Length > 2 ? Convert.ToSingle(args[2]) : 1f;
+                float fadeLength = args.Length > 3 ? Convert.ToSingle(args[3]) : 0.3f;
+                anim.Blend(animName, targetWeight, fadeLength);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Particle Methods
+    private void InitializeParticleMethods()
+    {
+        AddMethod("PlayParticles", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is ParticleSystem ps)
+            {
+                bool withChildren = args.Length > 1 ? Convert.ToBoolean(args[1]) : true;
+                ps.Play(withChildren);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("StopParticles", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is ParticleSystem ps)
+            {
+                bool withChildren = args.Length > 1 ? Convert.ToBoolean(args[1]) : true;
+                ParticleSystemStopBehavior stopBehavior = args.Length > 2 && System.Enum.TryParse<ParticleSystemStopBehavior>(args[2].ToString(), out var sb) ? sb : ParticleSystemStopBehavior.StopEmitting;
+                ps.Stop(withChildren, stopBehavior);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("PauseParticles", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is ParticleSystem ps)
+            {
+                bool withChildren = args.Length > 1 ? Convert.ToBoolean(args[1]) : true;
+                ps.Pause(withChildren);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("ClearParticles", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is ParticleSystem ps)
+            {
+                bool withChildren = args.Length > 1 ? Convert.ToBoolean(args[1]) : true;
+                ps.Clear(withChildren);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("IsParticlesAlive", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is ParticleSystem ps)
+            {
+                bool withChildren = args.Length > 1 ? Convert.ToBoolean(args[1]) : true;
+                return ps.IsAlive(withChildren);
+            }
+            return false;
+        });
+
+        AddMethod("EmitParticles", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is ParticleSystem ps)
+            {
+                int count = Convert.ToInt32(args[1]);
+                ps.Emit(count);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region UI Methods
+    private void InitializeUIMethods()
+    {
+        AddMethod("GetText", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Text text)
+                return text.text;
+            return null;
+        });
+
+        AddMethod("SetText", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Text text)
+            {
+                text.text = args[1].ToString();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetTextColor", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Text text)
+                return text.color;
+            return Color.white;
+        });
+
+        AddMethod("SetTextColor", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Text text && args[1] is Color color)
+            {
+                text.color = color;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetImageColor", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Image image)
+                return image.color;
+            return Color.white;
+        });
+
+        AddMethod("SetImageColor", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Image image && args[1] is Color color)
+            {
+                image.color = color;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetImageSprite", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Image image)
+                return image.sprite;
+            return null;
+        });
+
+        AddMethod("SetImageSprite", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Image image && args[1] is Sprite sprite)
+            {
+                image.sprite = sprite;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetButtonInteractable", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Button button)
+                return button.interactable;
+            return false;
+        });
+
+        AddMethod("SetButtonInteractable", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Button button)
+            {
+                button.interactable = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetSliderValue", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Slider slider)
+                return slider.value;
+            return 0f;
+        });
+
+        AddMethod("SetSliderValue", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Slider slider)
+            {
+                slider.value = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetToggleValue", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Toggle toggle)
+                return toggle.isOn;
+            return false;
+        });
+
+        AddMethod("SetToggleValue", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Toggle toggle)
+            {
+                toggle.isOn = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetInputFieldText", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is InputField inputField)
+                return inputField.text;
+            return null;
+        });
+
+        AddMethod("SetInputFieldText", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is InputField inputField)
+            {
+                inputField.text = args[1].ToString();
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Canvas Methods
+    private void InitializeCanvasMethods()
+    {
+        AddMethod("GetCanvasRenderMode", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Canvas canvas)
+                return canvas.renderMode.ToString();
+            return null;
+        });
+
+        AddMethod("SetCanvasRenderMode", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Canvas canvas && System.Enum.TryParse<RenderMode>(args[1].ToString(), out var mode))
+            {
+                canvas.renderMode = mode;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetCanvasScaleFactor", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Canvas canvas)
+                return canvas.scaleFactor;
+            return 1f;
+        });
+
+        AddMethod("SetCanvasScaleFactor", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Canvas canvas)
+            {
+                canvas.scaleFactor = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Input Methods
+    private void InitializeInputMethods()
+    {
+        AddMethod("GetKey", (interp, args) =>
+        {
+            if (args.Length > 0 && System.Enum.TryParse<KeyCode>(args[0].ToString(), true, out var key))
+                return Input.GetKey(key);
+            return false;
+        });
+
+        AddMethod("GetKeyDown", (interp, args) =>
+        {
+            if (args.Length > 0 && System.Enum.TryParse<KeyCode>(args[0].ToString(), true, out var key))
+                return Input.GetKeyDown(key);
+            return false;
+        });
+
+        AddMethod("GetKeyUp", (interp, args) =>
+        {
+            if (args.Length > 0 && System.Enum.TryParse<KeyCode>(args[0].ToString(), true, out var key))
+                return Input.GetKeyUp(key);
+            return false;
+        });
+
+        AddMethod("GetMouseButton", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                int button = Convert.ToInt32(args[0]);
+                return Input.GetMouseButton(button);
+            }
+            return false;
+        });
+
+        AddMethod("GetMouseButtonDown", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                int button = Convert.ToInt32(args[0]);
+                return Input.GetMouseButtonDown(button);
+            }
+            return false;
+        });
+
+        AddMethod("GetMouseButtonUp", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                int button = Convert.ToInt32(args[0]);
+                return Input.GetMouseButtonUp(button);
+            }
+            return false;
+        });
+
+        AddMethod("GetMousePosition", (interp, args) => Input.mousePosition);
+
+        AddMethod("GetMouseScrollDelta", (interp, args) => Input.mouseScrollDelta);
+
+        AddMethod("GetAxis", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Input.GetAxis(args[0].ToString());
+            return 0f;
+        });
+
+        AddMethod("GetAxisRaw", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Input.GetAxisRaw(args[0].ToString());
+            return 0f;
+        });
+
+        AddMethod("GetButton", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Input.GetButton(args[0].ToString());
+            return false;
+        });
+
+        AddMethod("GetButtonDown", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Input.GetButtonDown(args[0].ToString());
+            return false;
+        });
+
+        AddMethod("GetButtonUp", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Input.GetButtonUp(args[0].ToString());
+            return false;
+        });
+
+        AddMethod("GetTouch", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                int index = Convert.ToInt32(args[0]);
+                if (index >= 0 && index < Input.touchCount)
+                    return Input.GetTouch(index);
+            }
+            return new Touch();
+        });
+
+        AddMethod("GetTouchCount", (interp, args) => Input.touchCount);
+
+        AddMethod("GetAnyKey", (interp, args) => Input.anyKey);
+
+        AddMethod("GetAnyKeyDown", (interp, args) => Input.anyKeyDown);
+    }
+    #endregion
+
+    #region Time Methods
+    private void InitializeTimeMethods()
+    {
+        AddMethod("GetTime", (interp, args) => Time.time);
+        AddMethod("GetDeltaTime", (interp, args) => Time.deltaTime);
+        AddMethod("GetFixedTime", (interp, args) => Time.fixedTime);
+        AddMethod("GetFixedDeltaTime", (interp, args) => Time.fixedDeltaTime);
+        AddMethod("GetUnscaledTime", (interp, args) => Time.unscaledTime);
+        AddMethod("GetUnscaledDeltaTime", (interp, args) => Time.unscaledDeltaTime);
+        AddMethod("GetTimeScale", (interp, args) => Time.timeScale);
+        AddMethod("GetFrameCount", (interp, args) => Time.frameCount);
+        AddMethod("GetRealtimeSinceStartup", (interp, args) => Time.realtimeSinceStartup);
+
+        AddMethod("SetTimeScale", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                Time.timeScale = Convert.ToSingle(args[0]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetFixedDeltaTime", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                Time.fixedDeltaTime = Convert.ToSingle(args[0]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Scene Methods
+    private void InitializeSceneMethods()
+    {
+        AddMethod("LoadScene", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                if (args[0] is int index)
+                {
+                    LoadSceneMode mode = args.Length > 1 && System.Enum.TryParse<LoadSceneMode>(args[1].ToString(), out var m) ? m : LoadSceneMode.Single;
+                    SceneManager.LoadScene(index, mode);
+                    return true;
+                }
+                else
+                {
+                    string sceneName = args[0].ToString();
+                    LoadSceneMode mode = args.Length > 1 && System.Enum.TryParse<LoadSceneMode>(args[1].ToString(), out var m) ? m : LoadSceneMode.Single;
+                    SceneManager.LoadScene(sceneName, mode);
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        AddMethod("LoadSceneAsync", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                if (args[0] is int index)
+                {
+                    LoadSceneMode mode = args.Length > 1 && System.Enum.TryParse<LoadSceneMode>(args[1].ToString(), out var m) ? m : LoadSceneMode.Single;
+                    return SceneManager.LoadSceneAsync(index, mode);
+                }
+                else
+                {
+                    string sceneName = args[0].ToString();
+                    LoadSceneMode mode = args.Length > 1 && System.Enum.TryParse<LoadSceneMode>(args[1].ToString(), out var m) ? m : LoadSceneMode.Single;
+                    return SceneManager.LoadSceneAsync(sceneName, mode);
+                }
+            }
+            return null;
+        });
+
+        AddMethod("UnloadSceneAsync", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                if (args[0] is int index)
+                    return SceneManager.UnloadSceneAsync(index);
+                else
+                    return SceneManager.UnloadSceneAsync(args[0].ToString());
+            }
+            return null;
+        });
+
+        AddMethod("GetActiveScene", (interp, args) => SceneManager.GetActiveScene());
+
+        AddMethod("GetActiveSceneName", (interp, args) => SceneManager.GetActiveScene().name);
+
+        AddMethod("GetSceneCount", (interp, args) => SceneManager.sceneCount);
+
+        AddMethod("GetSceneAt", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                int index = Convert.ToInt32(args[0]);
+                return SceneManager.GetSceneAt(index);
+            }
+            return new Scene();
+        });
+
+        AddMethod("GetSceneByName", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return SceneManager.GetSceneByName(args[0].ToString());
+            return new Scene();
+        });
+
+        AddMethod("SetActiveScene", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Scene scene)
+                return SceneManager.SetActiveScene(scene);
+            return false;
+        });
+    }
+    #endregion
+
+    #region Resource Methods
+    private void InitializeResourceMethods()
+    {
+        AddMethod("LoadResource", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string path = args[0].ToString();
+                if (args.Length > 1)
+                {
+                    Type type = GetUnityType(args[1].ToString());
+                    return Resources.Load(path, type);
+                }
+                return Resources.Load(path);
+            }
+            return null;
+        });
+
+        AddMethod("LoadAllResources", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string path = args[0].ToString();
+                if (args.Length > 1)
+                {
+                    Type type = GetUnityType(args[1].ToString());
+                    return Resources.LoadAll(path, type);
+                }
+                return Resources.LoadAll(path);
+            }
+            return null;
+        });
+
+        AddMethod("UnloadAsset", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Object obj)
+            {
+                Resources.UnloadAsset(obj);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("UnloadUnusedAssets", (interp, args) =>
+        {
+            return Resources.UnloadUnusedAssets();
+        });
+    }
+    #endregion
+
+    #region Math Methods
+    private void InitializeMathMethods()
+    {
+        AddMethod("Abs", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Abs(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Acos", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Acos(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Asin", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Asin(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Atan", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Atan(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Atan2", (interp, args) =>
+        {
+            if (args.Length >= 2)
+                return Mathf.Atan2(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]));
+            return 0f;
+        });
+
+        AddMethod("Ceil", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Ceil(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("CeilToInt", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.CeilToInt(Convert.ToSingle(args[0]));
+            return 0;
+        });
+
+        AddMethod("Clamp", (interp, args) =>
+        {
+            if (args.Length >= 3)
+                return Mathf.Clamp(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]));
+            return 0f;
+        });
+
+        AddMethod("Clamp01", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Clamp01(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Cos", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Cos(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Exp", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Exp(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Floor", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Floor(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("FloorToInt", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.FloorToInt(Convert.ToSingle(args[0]));
+            return 0;
+        });
+
+        AddMethod("InverseLerp", (interp, args) =>
+        {
+            if (args.Length >= 3)
+                return Mathf.InverseLerp(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]));
+            return 0f;
+        });
+
+        AddMethod("Lerp", (interp, args) =>
+        {
+            if (args.Length >= 3)
+                return Mathf.Lerp(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]));
+            return 0f;
+        });
+
+        AddMethod("LerpAngle", (interp, args) =>
+        {
+            if (args.Length >= 3)
+                return Mathf.LerpAngle(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]));
+            return 0f;
+        });
+
+        AddMethod("LerpUnclamped", (interp, args) =>
+        {
+            if (args.Length >= 3)
+                return Mathf.LerpUnclamped(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]));
+            return 0f;
+        });
+
+        AddMethod("MathLog", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Log(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Log10", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Log10(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Max", (interp, args) =>
+        {
+            if (args.Length >= 2)
+                return Mathf.Max(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]));
+            return 0f;
+        });
+
+        AddMethod("Min", (interp, args) =>
+        {
+            if (args.Length >= 2)
+                return Mathf.Min(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]));
+            return 0f;
+        });
+
+        AddMethod("Pow", (interp, args) =>
+        {
+            if (args.Length >= 2)
+                return Mathf.Pow(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]));
+            return 0f;
+        });
+
+        AddMethod("Round", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Round(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("RoundToInt", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.RoundToInt(Convert.ToSingle(args[0]));
+            return 0;
+        });
+
+        AddMethod("Sign", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Sign(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Sin", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Sin(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("SmoothStep", (interp, args) =>
+        {
+            if (args.Length >= 3)
+                return Mathf.SmoothStep(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]));
+            return 0f;
+        });
+
+        AddMethod("Sqrt", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Sqrt(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("Tan", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return Mathf.Tan(Convert.ToSingle(args[0]));
+            return 0f;
+        });
+
+        AddMethod("DeltaAngle", (interp, args) =>
+        {
+            if (args.Length >= 2)
+                return Mathf.DeltaAngle(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]));
+            return 0f;
+        });
+
+        AddMethod("Repeat", (interp, args) =>
+        {
+            if (args.Length >= 2)
+                return Mathf.Repeat(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]));
+            return 0f;
+        });
+
+        AddMethod("PingPong", (interp, args) =>
+        {
+            if (args.Length >= 2)
+                return Mathf.PingPong(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]));
+            return 0f;
+        });
+
+        AddMethod("PI", (interp, args) => Mathf.PI);
+        AddMethod("Deg2Rad", (interp, args) => Mathf.Deg2Rad);
+        AddMethod("Rad2Deg", (interp, args) => Mathf.Rad2Deg);
+        AddMethod("Epsilon", (interp, args) => Mathf.Epsilon);
+        AddMethod("Infinity", (interp, args) => Mathf.Infinity);
+        AddMethod("NegativeInfinity", (interp, args) => Mathf.NegativeInfinity);
+    }
+    #endregion
+
+    #region Vector2 Methods
+    private void InitializeVector2Methods()
+    {
+        AddMethod("CreateVector2", (interp, args) =>
+        {
+            if (args.Length >= 2)
+                return new Vector2(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]));
+            return Vector2.zero;
+        });
+
+        AddMethod("Vector2Dot", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector2 a && args[1] is Vector2 b)
+                return Vector2.Dot(a, b);
+            return 0f;
+        });
+
+        AddMethod("Vector2Distance", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector2 a && args[1] is Vector2 b)
+                return Vector2.Distance(a, b);
+            return 0f;
+        });
+
+        AddMethod("Vector2Lerp", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Vector2 a && args[1] is Vector2 b)
+                return Vector2.Lerp(a, b, Convert.ToSingle(args[2]));
+            return Vector2.zero;
+        });
+
+        AddMethod("Vector2Normalize", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Vector2 v)
+                return v.normalized;
+            return Vector2.zero;
+        });
+
+        AddMethod("Vector2Magnitude", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Vector2 v)
+                return v.magnitude;
+            return 0f;
+        });
+
+        AddMethod("Vector2Angle", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector2 from && args[1] is Vector2 to)
+                return Vector2.Angle(from, to);
+            return 0f;
+        });
+
+        AddMethod("Vector2MoveTowards", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Vector2 current && args[1] is Vector2 target)
+                return Vector2.MoveTowards(current, target, Convert.ToSingle(args[2]));
+            return Vector2.zero;
+        });
+
+        AddMethod("Vector2Perpendicular", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Vector2 v)
+                return Vector2.Perpendicular(v);
+            return Vector2.zero;
+        });
+
+        AddMethod("Vector2Reflect", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector2 inDirection && args[1] is Vector2 inNormal)
+                return Vector2.Reflect(inDirection, inNormal);
+            return Vector2.zero;
+        });
+    }
+    #endregion
+
+    #region Vector3 Methods
+    private void InitializeVector3Methods()
+    {
+        AddMethod("CreateVector3", (interp, args) =>
+        {
+            if (args.Length >= 3)
+                return new Vector3(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]));
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3Dot", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 a && args[1] is Vector3 b)
+                return Vector3.Dot(a, b);
+            return 0f;
+        });
+
+        AddMethod("Vector3Cross", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 a && args[1] is Vector3 b)
+                return Vector3.Cross(a, b);
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3Distance", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 a && args[1] is Vector3 b)
+                return Vector3.Distance(a, b);
+            return 0f;
+        });
+
+        AddMethod("Vector3Lerp", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Vector3 a && args[1] is Vector3 b)
+                return Vector3.Lerp(a, b, Convert.ToSingle(args[2]));
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3Slerp", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Vector3 a && args[1] is Vector3 b)
+                return Vector3.Slerp(a, b, Convert.ToSingle(args[2]));
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3Normalize", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Vector3 v)
+                return v.normalized;
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3Magnitude", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Vector3 v)
+                return v.magnitude;
+            return 0f;
+        });
+
+        AddMethod("Vector3Angle", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 from && args[1] is Vector3 to)
+                return Vector3.Angle(from, to);
+            return 0f;
+        });
+
+        AddMethod("Vector3Project", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 vector && args[1] is Vector3 onNormal)
+                return Vector3.Project(vector, onNormal);
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3ProjectOnPlane", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 vector && args[1] is Vector3 planeNormal)
+                return Vector3.ProjectOnPlane(vector, planeNormal);
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3Reflect", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 inDirection && args[1] is Vector3 inNormal)
+                return Vector3.Reflect(inDirection, inNormal);
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3MoveTowards", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Vector3 current && args[1] is Vector3 target)
+                return Vector3.MoveTowards(current, target, Convert.ToSingle(args[2]));
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3RotateTowards", (interp, args) =>
+        {
+            if (args.Length >= 4 && args[0] is Vector3 current && args[1] is Vector3 target)
+                return Vector3.RotateTowards(current, target, Convert.ToSingle(args[2]), Convert.ToSingle(args[3]));
+            return Vector3.zero;
+        });
+
+        AddMethod("Vector3Scale", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 a && args[1] is Vector3 b)
+                return Vector3.Scale(a, b);
+            return Vector3.zero;
+        });
+    }
+    #endregion
+
+    #region Vector4 Methods
+    private void InitializeVector4Methods()
+    {
+        AddMethod("CreateVector4", (interp, args) =>
+        {
+            if (args.Length >= 4)
+                return new Vector4(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]), Convert.ToSingle(args[3]));
+            return Vector4.zero;
+        });
+
+        AddMethod("Vector4Dot", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector4 a && args[1] is Vector4 b)
+                return Vector4.Dot(a, b);
+            return 0f;
+        });
+
+        AddMethod("Vector4Distance", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector4 a && args[1] is Vector4 b)
+                return Vector4.Distance(a, b);
+            return 0f;
+        });
+
+        AddMethod("Vector4Lerp", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Vector4 a && args[1] is Vector4 b)
+                return Vector4.Lerp(a, b, Convert.ToSingle(args[2]));
+            return Vector4.zero;
+        });
+
+        AddMethod("Vector4Normalize", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Vector4 v)
+                return v.normalized;
+            return Vector4.zero;
+        });
+
+        AddMethod("Vector4Magnitude", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Vector4 v)
+                return v.magnitude;
+            return 0f;
+        });
+    }
+    #endregion
+
+    #region Quaternion Methods
+    private void InitializeQuaternionMethods()
+    {
+        AddMethod("CreateQuaternion", (interp, args) =>
+        {
+            if (args.Length >= 4)
+                return new Quaternion(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]), Convert.ToSingle(args[3]));
+            return Quaternion.identity;
+        });
+
+        AddMethod("QuaternionEuler", (interp, args) =>
+        {
+            if (args.Length >= 3)
+                return Quaternion.Euler(Convert.ToSingle(args[0]), Convert.ToSingle(args[1]), Convert.ToSingle(args[2]));
+            else if (args.Length >= 1 && args[0] is Vector3 euler)
+                return Quaternion.Euler(euler);
+            return Quaternion.identity;
+        });
+
+        AddMethod("QuaternionAngleAxis", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[1] is Vector3 axis)
+                return Quaternion.AngleAxis(Convert.ToSingle(args[0]), axis);
+            return Quaternion.identity;
+        });
+
+        AddMethod("QuaternionLookRotation", (interp, args) =>
+        {
+            if (args.Length >= 1 && args[0] is Vector3 forward)
+            {
+                Vector3 upwards = args.Length > 1 && args[1] is Vector3 up ? up : Vector3.up;
+                return Quaternion.LookRotation(forward, upwards);
+            }
+            return Quaternion.identity;
+        });
+
+        AddMethod("QuaternionSlerp", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Quaternion a && args[1] is Quaternion b)
+                return Quaternion.Slerp(a, b, Convert.ToSingle(args[2]));
+            return Quaternion.identity;
+        });
+
+        AddMethod("QuaternionLerp", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Quaternion a && args[1] is Quaternion b)
+                return Quaternion.Lerp(a, b, Convert.ToSingle(args[2]));
+            return Quaternion.identity;
+        });
+
+        AddMethod("QuaternionRotateTowards", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Quaternion from && args[1] is Quaternion to)
+                return Quaternion.RotateTowards(from, to, Convert.ToSingle(args[2]));
+            return Quaternion.identity;
+        });
+
+        AddMethod("QuaternionAngle", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Quaternion a && args[1] is Quaternion b)
+                return Quaternion.Angle(a, b);
+            return 0f;
+        });
+
+        AddMethod("QuaternionDot", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Quaternion a && args[1] is Quaternion b)
+                return Quaternion.Dot(a, b);
+            return 0f;
+        });
+
+        AddMethod("QuaternionInverse", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Quaternion q)
+                return Quaternion.Inverse(q);
+            return Quaternion.identity;
+        });
+
+        AddMethod("QuaternionToEuler", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Quaternion q)
+                return q.eulerAngles;
+            return Vector3.zero;
+        });
+    }
+    #endregion
+
+    #region Color Methods
+    private void InitializeColorMethods()
+    {
+        AddMethod("CreateColor", (interp, args) =>
+        {
+            if (args.Length >= 3)
+            {
+                float r = Convert.ToSingle(args[0]);
+                float g = Convert.ToSingle(args[1]);
+                float b = Convert.ToSingle(args[2]);
+                float a = args.Length > 3 ? Convert.ToSingle(args[3]) : 1f;
+                return new Color(r, g, b, a);
+            }
+            return Color.white;
+        });
+
+        AddMethod("ColorLerp", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Color a && args[1] is Color b)
+                return Color.Lerp(a, b, Convert.ToSingle(args[2]));
+            return Color.white;
+        });
+
+        AddMethod("ColorHSV", (interp, args) =>
+        {
+            if (args.Length >= 3)
+            {
+                float h = Convert.ToSingle(args[0]);
+                float s = Convert.ToSingle(args[1]);
+                float v = Convert.ToSingle(args[2]);
+                float a = args.Length > 3 ? Convert.ToSingle(args[3]) : 1f;
+                return Color.HSVToRGB(h, s, v) * new Color(1, 1, 1, a);
+            }
+            return Color.white;
+        });
+
+        AddMethod("ColorToHSV", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Color color)
+            {
+                Color.RGBToHSV(color, out float h, out float s, out float v);
+                return new Vector3(h, s, v);
+            }
+            return Vector3.zero;
+        });
+
+        AddMethod("ColorGrayscale", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Color color)
+                return color.grayscale;
+            return 0f;
+        });
+    }
+    #endregion
+
+    #region Raycast Methods
+    private void InitializeRaycastMethods()
+    {
+        AddMethod("GetRaycastHitPoint", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is RaycastHit hit)
+                return hit.point;
+            return Vector3.zero;
+        });
+
+        AddMethod("GetRaycastHitNormal", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is RaycastHit hit)
+                return hit.normal;
+            return Vector3.zero;
+        });
+
+        AddMethod("GetRaycastHitDistance", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is RaycastHit hit)
+                return hit.distance;
+            return 0f;
+        });
+
+        AddMethod("GetRaycastHitCollider", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is RaycastHit hit)
+                return hit.collider;
+            return null;
+        });
+
+        AddMethod("GetRaycastHitTransform", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is RaycastHit hit)
+                return hit.transform;
+            return null;
+        });
+
+        AddMethod("GetRaycastHitRigidbody", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is RaycastHit hit)
+                return hit.rigidbody;
+            return null;
+        });
+    }
+    #endregion
+
+    #region Layer Methods
+    private void InitializeLayerMethods()
+    {
+        AddMethod("LayerToMask", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                int layer = Convert.ToInt32(args[0]);
+                return 1 << layer;
+            }
+            return 0;
+        });
+
+        AddMethod("NameToLayer", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return LayerMask.NameToLayer(args[0].ToString());
+            return 0;
+        });
+
+        AddMethod("LayerToName", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                int layer = Convert.ToInt32(args[0]);
+                return LayerMask.LayerToName(layer);
+            }
+            return null;
+        });
+
+        AddMethod("GetMask", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string[] layerNames = args.Select(a => a.ToString()).ToArray();
+                return LayerMask.GetMask(layerNames);
+            }
+            return 0;
+        });
+    }
+    #endregion
+
+    #region Tag Methods
+    private void InitializeTagMethods()
+    {
+        AddMethod("FindWithTag", (interp, args) =>
+        {
+            if (args.Length > 0)
+                return GameObject.FindWithTag(args[0].ToString());
+            return null;
+        });
+    }
+    #endregion
+
+    #region Coroutine Methods
+    private void InitializeCoroutineMethods()
+    {
+        AddMethod("StartCoroutine", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is MonoBehaviour mb && args[1] is IEnumerator routine)
+                return mb.StartCoroutine(routine);
+            return null;
+        });
+
+        AddMethod("StopCoroutine", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is MonoBehaviour mb)
+            {
+                if (args[1] is Coroutine coroutine)
+                {
+                    mb.StopCoroutine(coroutine);
+                    return true;
+                }
+                else if (args[1] is string methodName)
+                {
+                    mb.StopCoroutine(methodName);
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        AddMethod("StopAllCoroutines", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is MonoBehaviour mb)
+            {
+                mb.StopAllCoroutines();
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Application Methods
+    private void InitializeApplicationMethods()
+    {
+        AddMethod("Quit", (interp, args) =>
+        {
+            Application.Quit();
+            return null;
+        });
+
+        AddMethod("OpenURL", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                Application.OpenURL(args[0].ToString());
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetPlatform", (interp, args) => Application.platform.ToString());
+
+        AddMethod("GetUnityVersion", (interp, args) => Application.unityVersion);
+
+        AddMethod("GetProductName", (interp, args) => Application.productName);
+
+        AddMethod("GetCompanyName", (interp, args) => Application.companyName);
+
+        AddMethod("GetDataPath", (interp, args) => Application.dataPath);
+
+        AddMethod("GetPersistentDataPath", (interp, args) => Application.persistentDataPath);
+
+        AddMethod("GetStreamingAssetsPath", (interp, args) => Application.streamingAssetsPath);
+
+        AddMethod("GetTemporaryCachePath", (interp, args) => Application.temporaryCachePath);
+
+        AddMethod("GetIsPlaying", (interp, args) => Application.isPlaying);
+
+        AddMethod("GetIsEditor", (interp, args) => Application.isEditor);
+
+        AddMethod("GetIsFocused", (interp, args) => Application.isFocused);
+
+        AddMethod("GetTargetFrameRate", (interp, args) => Application.targetFrameRate);
+
+        AddMethod("SetTargetFrameRate", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                Application.targetFrameRate = Convert.ToInt32(args[0]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetRunInBackground", (interp, args) => Application.runInBackground);
+
+        AddMethod("SetRunInBackground", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                Application.runInBackground = Convert.ToBoolean(args[0]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Screen Methods
+    private void InitializeScreenMethods()
+    {
+        AddMethod("GetScreenWidth", (interp, args) => Screen.width);
+        AddMethod("GetScreenHeight", (interp, args) => Screen.height);
+        AddMethod("GetScreenDPI", (interp, args) => Screen.dpi);
+
+        AddMethod("GetFullscreen", (interp, args) => Screen.fullScreen);
+
+        AddMethod("SetFullscreen", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                Screen.fullScreen = Convert.ToBoolean(args[0]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetResolution", (interp, args) =>
+        {
+            if (args.Length >= 2)
+            {
+                int width = Convert.ToInt32(args[0]);
+                int height = Convert.ToInt32(args[1]);
+                bool fullscreen = args.Length > 2 ? Convert.ToBoolean(args[2]) : Screen.fullScreen;
+                Screen.SetResolution(width, height, fullscreen);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetOrientation", (interp, args) => Screen.orientation.ToString());
+
+        AddMethod("SetOrientation", (interp, args) =>
+        {
+            if (args.Length > 0 && System.Enum.TryParse<ScreenOrientation>(args[0].ToString(), out var orientation))
+            {
+                Screen.orientation = orientation;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetSleepTimeout", (interp, args) => Screen.sleepTimeout);
+
+        AddMethod("SetSleepTimeout", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                Screen.sleepTimeout = Convert.ToInt32(args[0]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Debug Methods
+    private void InitializeDebugMethods()
+    {
+        AddMethod("Log", (interp, args) =>
+        {
+            if (args.Length > 0)
+                Debug.Log(string.Join(" ", args));
+            return null;
+        });
+
+        AddMethod("LogWarning", (interp, args) =>
+        {
+            if (args.Length > 0)
+                Debug.LogWarning(string.Join(" ", args));
+            return null;
+        });
+
+        AddMethod("LogError", (interp, args) =>
+        {
+            if (args.Length > 0)
+                Debug.LogError(string.Join(" ", args));
+            return null;
+        });
+
+        AddMethod("DrawLine", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 start && args[1] is Vector3 end)
+            {
+                Color color = args.Length > 2 && args[2] is Color c ? c : Color.white;
+                float duration = args.Length > 3 ? Convert.ToSingle(args[3]) : 0f;
+                bool depthTest = args.Length > 4 ? Convert.ToBoolean(args[4]) : true;
+                Debug.DrawLine(start, end, color, duration, depthTest);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DrawRay", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 start && args[1] is Vector3 dir)
+            {
+                Color color = args.Length > 2 && args[2] is Color c ? c : Color.white;
+                float duration = args.Length > 3 ? Convert.ToSingle(args[3]) : 0f;
+                bool depthTest = args.Length > 4 ? Convert.ToBoolean(args[4]) : true;
+                Debug.DrawRay(start, dir, color, duration, depthTest);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("ClearLog", (interp, args) =>
+        {
+            Debug.ClearDeveloperConsole();
+            return true;
+        });
+
+        AddMethod("Break", (interp, args) =>
+        {
+            Debug.Break();
+            return true;
+        });
+    }
+    #endregion
+
+    #region Navigation Methods
+    private void InitializeNavigationMethods()
+    {
+        AddMethod("NavMeshAgentSetDestination", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is UnityEngine.AI.NavMeshAgent agent && args[1] is Vector3 destination)
+            {
+                agent.SetDestination(destination);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("NavMeshAgentStop", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.AI.NavMeshAgent agent)
+            {
+                agent.isStopped = true;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("NavMeshAgentResume", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.AI.NavMeshAgent agent)
+            {
+                agent.isStopped = false;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("NavMeshAgentGetVelocity", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.AI.NavMeshAgent agent)
+                return agent.velocity;
+            return Vector3.zero;
+        });
+
+        AddMethod("NavMeshAgentSetSpeed", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is UnityEngine.AI.NavMeshAgent agent)
+            {
+                agent.speed = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Terrain Methods
+    private void InitializeTerrainMethods()
+    {
+        AddMethod("GetTerrainHeight", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Terrain terrain)
+            {
+                float x = Convert.ToSingle(args[1]);
+                float z = Convert.ToSingle(args[2]);
+                return terrain.SampleHeight(new Vector3(x, 0, z));
+            }
+            return 0f;
+        });
+
+        AddMethod("GetTerrainPosition", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Terrain terrain)
+                return terrain.transform.position;
+            return Vector3.zero;
+        });
+
+        AddMethod("GetTerrainSize", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Terrain terrain)
+                return terrain.terrainData.size;
+            return Vector3.zero;
+        });
+    }
+    #endregion
+
+    #region SpriteRenderer Methods
+    private void InitializeSpriteRendererMethods()
+    {
+        AddMethod("GetSprite", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is SpriteRenderer sr)
+                return sr.sprite;
+            return null;
+        });
+
+        AddMethod("SetSprite", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is SpriteRenderer sr && args[1] is Sprite sprite)
+            {
+                sr.sprite = sprite;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetSpriteColor", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is SpriteRenderer sr)
+                return sr.color;
+            return Color.white;
+        });
+
+        AddMethod("SetSpriteColor", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is SpriteRenderer sr && args[1] is Color color)
+            {
+                sr.color = color;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("FlipSpriteX", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is SpriteRenderer sr)
+            {
+                sr.flipX = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("FlipSpriteY", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is SpriteRenderer sr)
+            {
+                sr.flipY = Convert.ToBoolean(args[1]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Animator Methods
+    private void InitializeAnimatorMethods()
+    {
+        AddMethod("SetAnimatorBool", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Animator anim)
+            {
+                string param = args[1].ToString();
+                bool value = Convert.ToBoolean(args[2]);
+                anim.SetBool(param, value);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetAnimatorFloat", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Animator anim)
+            {
+                string param = args[1].ToString();
+                float value = Convert.ToSingle(args[2]);
+                anim.SetFloat(param, value);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetAnimatorInt", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Animator anim)
+            {
+                string param = args[1].ToString();
+                int value = Convert.ToInt32(args[2]);
+                anim.SetInteger(param, value);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetAnimatorTrigger", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animator anim)
+            {
+                string param = args[1].ToString();
+                anim.SetTrigger(param);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("ResetAnimatorTrigger", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animator anim)
+            {
+                string param = args[1].ToString();
+                anim.ResetTrigger(param);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetAnimatorBool", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animator anim)
+            {
+                string param = args[1].ToString();
+                return anim.GetBool(param);
+            }
+            return false;
+        });
+
+        AddMethod("GetAnimatorFloat", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animator anim)
+            {
+                string param = args[1].ToString();
+                return anim.GetFloat(param);
+            }
+            return 0f;
+        });
+
+        AddMethod("GetAnimatorInt", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animator anim)
+            {
+                string param = args[1].ToString();
+                return anim.GetInteger(param);
+            }
+            return 0;
+        });
+
+        AddMethod("PlayAnimatorState", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animator anim)
+            {
+                string stateName = args[1].ToString();
+                int layer = args.Length > 2 ? Convert.ToInt32(args[2]) : 0;
+                float normalizedTime = args.Length > 3 ? Convert.ToSingle(args[3]) : float.NegativeInfinity;
+                anim.Play(stateName, layer, normalizedTime);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("CrossFadeAnimator", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Animator anim)
+            {
+                string stateName = args[1].ToString();
+                float normalizedTransitionDuration = Convert.ToSingle(args[2]);
+                int layer = args.Length > 3 ? Convert.ToInt32(args[3]) : 0;
+                anim.CrossFade(stateName, normalizedTransitionDuration, layer);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetAnimatorSpeed", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Animator anim)
+                return anim.speed;
+            return 1f;
+        });
+
+        AddMethod("SetAnimatorSpeed", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Animator anim)
+            {
+                anim.speed = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region LineRenderer Methods
+    private void InitializeLineRendererMethods()
+    {
+        AddMethod("SetLinePositionCount", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is LineRenderer lr)
+            {
+                lr.positionCount = Convert.ToInt32(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetLinePosition", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is LineRenderer lr && args[2] is Vector3 position)
+            {
+                int index = Convert.ToInt32(args[1]);
+                lr.SetPosition(index, position);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetLinePosition", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is LineRenderer lr)
+            {
+                int index = Convert.ToInt32(args[1]);
+                return lr.GetPosition(index);
+            }
+            return Vector3.zero;
+        });
+
+        AddMethod("SetLineWidth", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is LineRenderer lr)
+            {
+                float startWidth = Convert.ToSingle(args[1]);
+                float endWidth = Convert.ToSingle(args[2]);
+                lr.startWidth = startWidth;
+                lr.endWidth = endWidth;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetLineColor", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is LineRenderer lr && args[1] is Color startColor && args[2] is Color endColor)
+            {
+                lr.startColor = startColor;
+                lr.endColor = endColor;
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region TrailRenderer Methods
+    private void InitializeTrailRendererMethods()
+    {
+        AddMethod("ClearTrail", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is TrailRenderer tr)
+            {
+                tr.Clear();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetTrailTime", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is TrailRenderer tr)
+            {
+                tr.time = Convert.ToSingle(args[1]);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("SetTrailWidth", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is TrailRenderer tr)
+            {
+                float startWidth = Convert.ToSingle(args[1]);
+                float endWidth = Convert.ToSingle(args[2]);
+                tr.startWidth = startWidth;
+                tr.endWidth = endWidth;
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Gizmo Methods
+    private void InitializeGizmoMethods()
+    {
+        AddMethod("SetGizmoColor", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Color color)
+            {
+                Gizmos.color = color;
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DrawGizmoSphere", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 center)
+            {
+                float radius = Convert.ToSingle(args[1]);
+                Gizmos.DrawSphere(center, radius);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DrawGizmoWireSphere", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 center)
+            {
+                float radius = Convert.ToSingle(args[1]);
+                Gizmos.DrawWireSphere(center, radius);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DrawGizmoCube", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 center && args[1] is Vector3 size)
+            {
+                Gizmos.DrawCube(center, size);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DrawGizmoWireCube", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 center && args[1] is Vector3 size)
+            {
+                Gizmos.DrawWireCube(center, size);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DrawGizmoLine", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 from && args[1] is Vector3 to)
+            {
+                Gizmos.DrawLine(from, to);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DrawGizmoRay", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 from && args[1] is Vector3 direction)
+            {
+                Gizmos.DrawRay(from, direction);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region PlayerPrefs Methods
+    private void InitializePlayerPrefsMethods()
+    {
+        AddMethod("SetPlayerPrefInt", (interp, args) =>
+        {
+            if (args.Length >= 2)
+            {
+                string key = args[0].ToString();
+                int value = Convert.ToInt32(args[1]);
+                PlayerPrefs.SetInt(key, value);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetPlayerPrefInt", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string key = args[0].ToString();
+                int defaultValue = args.Length > 1 ? Convert.ToInt32(args[1]) : 0;
+                return PlayerPrefs.GetInt(key, defaultValue);
+            }
+            return 0;
+        });
+
+        AddMethod("SetPlayerPrefFloat", (interp, args) =>
+        {
+            if (args.Length >= 2)
+            {
+                string key = args[0].ToString();
+                float value = Convert.ToSingle(args[1]);
+                PlayerPrefs.SetFloat(key, value);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetPlayerPrefFloat", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string key = args[0].ToString();
+                float defaultValue = args.Length > 1 ? Convert.ToSingle(args[1]) : 0f;
+                return PlayerPrefs.GetFloat(key, defaultValue);
+            }
+            return 0f;
+        });
+
+        AddMethod("SetPlayerPrefString", (interp, args) =>
+        {
+            if (args.Length >= 2)
+            {
+                string key = args[0].ToString();
+                string value = args[1].ToString();
+                PlayerPrefs.SetString(key, value);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("GetPlayerPrefString", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string key = args[0].ToString();
+                string defaultValue = args.Length > 1 ? args[1].ToString() : "";
+                return PlayerPrefs.GetString(key, defaultValue);
+            }
+            return "";
+        });
+
+        AddMethod("HasPlayerPrefKey", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string key = args[0].ToString();
+                return PlayerPrefs.HasKey(key);
+            }
+            return false;
+        });
+
+        AddMethod("DeletePlayerPrefKey", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string key = args[0].ToString();
+                PlayerPrefs.DeleteKey(key);
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("DeleteAllPlayerPrefs", (interp, args) =>
+        {
+            PlayerPrefs.DeleteAll();
+            return true;
+        });
+
+        AddMethod("SavePlayerPrefs", (interp, args) =>
+        {
+            PlayerPrefs.Save();
+            return true;
+        });
+    }
+    #endregion
+
+    #region Random Methods
+    private void InitializeRandomMethods()
+    {
+        AddMethod("RandomValue", (interp, args) => UnityEngine.Random.value);
+
+        AddMethod("RandomRange", (interp, args) =>
+        {
+            if (args.Length >= 2)
+            {
+                if (args[0] is int || args[1] is int)
+                {
+                    int min = Convert.ToInt32(args[0]);
+                    int max = Convert.ToInt32(args[1]);
+                    return UnityEngine.Random.Range(min, max);
+                }
+                else
+                {
+                    float min = Convert.ToSingle(args[0]);
+                    float max = Convert.ToSingle(args[1]);
+                    return UnityEngine.Random.Range(min, max);
+                }
+            }
+            return 0f;
+        });
+
+        AddMethod("RandomInsideUnitSphere", (interp, args) => UnityEngine.Random.insideUnitSphere);
+
+        AddMethod("RandomInsideUnitCircle", (interp, args) => UnityEngine.Random.insideUnitCircle);
+
+        AddMethod("RandomOnUnitSphere", (interp, args) => UnityEngine.Random.onUnitSphere);
+
+        AddMethod("RandomRotation", (interp, args) => UnityEngine.Random.rotation);
+
+        AddMethod("RandomRotationUniform", (interp, args) => UnityEngine.Random.rotationUniform);
+
+        AddMethod("RandomColorHSV", (interp, args) =>
+        {
+            float hueMin = args.Length > 0 ? Convert.ToSingle(args[0]) : 0f;
+            float hueMax = args.Length > 1 ? Convert.ToSingle(args[1]) : 1f;
+            float saturationMin = args.Length > 2 ? Convert.ToSingle(args[2]) : 0f;
+            float saturationMax = args.Length > 3 ? Convert.ToSingle(args[3]) : 1f;
+            float valueMin = args.Length > 4 ? Convert.ToSingle(args[4]) : 0f;
+            float valueMax = args.Length > 5 ? Convert.ToSingle(args[5]) : 1f;
+            return UnityEngine.Random.ColorHSV(hueMin, hueMax, saturationMin, saturationMax, valueMin, valueMax);
+        });
+
+        AddMethod("SetRandomSeed", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                UnityEngine.Random.InitState(Convert.ToInt32(args[0]));
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Bounds Methods
+    private void InitializeBoundsMethods()
+    {
+        AddMethod("CreateBounds", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 center && args[1] is Vector3 size)
+                return new Bounds(center, size);
+            return new Bounds();
+        });
+
+        AddMethod("GetBoundsCenter", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Bounds bounds)
+                return bounds.center;
+            return Vector3.zero;
+        });
+
+        AddMethod("SetBoundsCenter", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Bounds bounds && args[1] is Vector3 center)
+            {
+                bounds.center = center;
+                return bounds;
+            }
+            return new Bounds();
+        });
+
+        AddMethod("GetBoundsSize", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Bounds bounds)
+                return bounds.size;
+            return Vector3.zero;
+        });
+
+        AddMethod("SetBoundsSize", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Bounds bounds && args[1] is Vector3 size)
+            {
+                bounds.size = size;
+                return bounds;
+            }
+            return new Bounds();
+        });
+
+        AddMethod("BoundsContains", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Bounds bounds && args[1] is Vector3 point)
+                return bounds.Contains(point);
+            return false;
+        });
+
+        AddMethod("BoundsIntersects", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Bounds bounds && args[1] is Bounds other)
+                return bounds.Intersects(other);
+            return false;
+        });
+
+        AddMethod("BoundsClosestPoint", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Bounds bounds && args[1] is Vector3 point)
+                return bounds.ClosestPoint(point);
+            return Vector3.zero;
+        });
+    }
+    #endregion
+
+    #region Plane Methods
+    private void InitializePlaneMethods()
+    {
+        AddMethod("CreatePlane", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Vector3 normal && args[1] is Vector3 point)
+                return new Plane(normal, point);
+            else if (args.Length >= 4 && args[0] is Vector3 a && args[1] is Vector3 b && args[2] is Vector3 c)
+                return new Plane(a, b, c);
+            return new Plane();
+        });
+
+        AddMethod("GetPlaneDistance", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Plane plane && args[1] is Vector3 point)
+                return plane.GetDistanceToPoint(point);
+            return 0f;
+        });
+
+        AddMethod("PlaneRaycast", (interp, args) =>
+        {
+            if (args.Length >= 3 && args[0] is Plane plane && args[1] is Vector3 origin && args[2] is Vector3 direction)
+            {
+                float enter;
+                if (plane.Raycast(new Ray(origin, direction), out enter))
+                    return enter;
+            }
+            return -1f;
+        });
+
+        AddMethod("PlaneClosestPointOnPlane", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is Plane plane && args[1] is Vector3 point)
+                return plane.ClosestPointOnPlane(point);
+            return Vector3.zero;
+        });
+    }
+    #endregion
+
+    #region Video Methods
+    private void InitializeVideoMethods()
+    {
+        AddMethod("PlayVideo", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Video.VideoPlayer vp)
+            {
+                vp.Play();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("PauseVideo", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Video.VideoPlayer vp)
+            {
+                vp.Pause();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("StopVideo", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Video.VideoPlayer vp)
+            {
+                vp.Stop();
+                return true;
+            }
+            return false;
+        });
+
+        AddMethod("IsVideoPlaying", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is UnityEngine.Video.VideoPlayer vp)
+                return vp.isPlaying;
+            return false;
+        });
+
+        AddMethod("SetVideoTime", (interp, args) =>
+        {
+            if (args.Length >= 2 && args[0] is UnityEngine.Video.VideoPlayer vp)
+            {
+                vp.time = Convert.ToDouble(args[1]);
+                return true;
+            }
+            return false;
+        });
+    }
+    #endregion
+
+    #region Networking Methods
+    private void InitializeNetworkingMethods()
+    {
+        AddMethod("GetInternetReachability", (interp, args) => Application.internetReachability.ToString());
+
+        AddMethod("Ping", (interp, args) =>
+        {
+            if (args.Length > 0)
+            {
+                string address = args[0].ToString();
+                return new Ping(address);
+            }
+            return null;
+        });
+
+        AddMethod("IsPingDone", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Ping ping)
+                return ping.isDone;
+            return false;
+        });
+
+        AddMethod("GetPingTime", (interp, args) =>
+        {
+            if (args.Length > 0 && args[0] is Ping ping)
+                return ping.time;
+            return -1;
+        });
+    }
+    #endregion
+
+    public override void OnRegister(Interpreter interpreter)
+    {
+        Debug.Log($"Unity Pipeline registered with {Methods.Count} methods to interpreter");
+    }
+
+    public override void OnUnregister(Interpreter interpreter)
+    {
+        Debug.Log($"Unity Pipeline unregistered from interpreter");
+    }
+}
+
+/// <summary>
+/// Wrapper for Vector3 constants as pipeline elements
+/// </summary>
+public class Vector3Element : IPipeElement
+{
+    private string _name;
+    private Vector3 _value;
+
+    public Vector3Element(string name, Vector3 value)
+    {
+        _name = name;
+        _value = value;
+    }
+
+    public string Name => _name;
+    public PipeElementType ElementType => PipeElementType.Struct;
+
+    public object ToRuntimeElement()
+    {
+        var runtimeStruct = new RuntimeStruct();
+        runtimeStruct.name = _name;
+
+        runtimeStruct.SetField(0, _value.x);
+        runtimeStruct.SetField(1, _value.y);
+        runtimeStruct.SetField(2, _value.z);
+        return runtimeStruct;
+    }
+}
